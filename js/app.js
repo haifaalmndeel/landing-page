@@ -33,28 +33,29 @@ const fragment = document.createDocumentFragment(); // ← uses a DocumentFragme
  *
  */
 
-// build the nav
+// build the navigation bar
 /**
- * a function that have a for-of loop that create a list item and
- * get the section names from the data-nav attribute .
+ * A function that have a for-of loop that create a list item and
+ * get the sections names from the data-nav attribute.
  */
-function buildNav() {
+(function () {
   for (let section of sections) {
     const createList = document.createElement("li");
     const navList = section.getAttribute("data-nav");
-    
-    createList.innerHTML = '<a class="menu__link" >' + navList + '</a>';
+    const sectionId = section.id;
+
+    createList.innerHTML =
+      '<a class="menu__link" href="#' + sectionId + '" >' + navList + "</a>";
 
     fragment.appendChild(createList);
   }
   navbar__list.appendChild(fragment);
-}
-
-buildNav();
-
+})();
 
 // Intersection Observer API to add class 'active-class' to section when near top of viewport
+const config = { rootMargin: "-19% 0px -80% 0px" };
 
+// IntersectionObserver function detecting the section in a viewport and add a "active-class" class to that section
 observer = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
     if (entry.intersectionRatio > 0) {
@@ -63,26 +64,35 @@ observer = new IntersectionObserver((entries) => {
       entry.target.classList.remove("active-class");
     }
   });
+}, config);
+
+sections.forEach((section) => {
+  observer.observe(section);
 });
-
-sections.forEach((sections) => {
-  observer.observe(sections);
-});
-
-// Scroll to anchor ID using scrollTO event
-
 
 /**
-*a for loop that go through the sections and navigation list items
-* then create a click event on the navigation list to scroll smoothly to the sections
-*/ 
-const navLinks = document.querySelectorAll(".menu__link");
+ * Add scroll event lisListener then create a for-each loop for the mainNavLinks to create sections
+ * "If-else" statement with measurement to add "active-nav" class to the link or remove it
+ */
 
-for (let i = 0; i < sections.length; i++) {
-    navLinks[i].addEventListener("click", function () {
-    sections[i].scrollIntoView({ behavior: "smooth" });
+let mainNavLinks = document.querySelectorAll(".menu__link");
+
+window.addEventListener("scroll", (event) => {
+  let fromTop = window.scrollY;
+
+  mainNavLinks.forEach((link) => {
+    let section = document.querySelector(link.hash);
+
+    if (
+      section.offsetTop < fromTop &&
+      section.offsetTop + section.offsetHeight > fromTop
+    ) {
+      link.classList.add("active-nav");
+    } else {
+      link.classList.remove("active-nav");
+    }
   });
-}
+});
 
 /**
  * End Main Functions
@@ -95,4 +105,3 @@ for (let i = 0; i < sections.length; i++) {
 // Set sections as active
 
 // Scroll to section on link click
-
